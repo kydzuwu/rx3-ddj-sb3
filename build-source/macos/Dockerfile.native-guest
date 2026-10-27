@@ -1,0 +1,15 @@
+FROM rbpi4b-macos-tools:dev
+
+# Native ARM64 kernel + static ARM32 user emulator. The firmware stays ARM32;
+# only its user space is translated instead of every kernel/device operation.
+RUN apt-get update && apt-get install -y --no-install-recommends qemu-user-static \
+    && mkdir -p /opt/native-kernel \
+    && cd /opt/native-kernel \
+    && KERNEL_PACKAGE="$(apt-cache depends linux-image-arm64 | sed -n 's/^  Depends: //p' | head -1)" \
+    && apt-get download "$KERNEL_PACKAGE" \
+    && dpkg-deb -x ./*.deb root \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN depmod -b /opt/native-kernel/root "$(basename /opt/native-kernel/root/lib/modules/*)"
+RUN apt-get update && apt-get install -y --no-install-recommends libasound2-dev \
+    && rm -rf /var/lib/apt/lists/*

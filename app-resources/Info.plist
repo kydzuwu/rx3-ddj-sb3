@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>en</string>
+	<key>CFBundleDisplayName</key>
+	<string>RX3 Prototype</string>
+	<key>CFBundleExecutable</key>
+	<string>RX3Prototype</string>
+	<key>CFBundleIconFile</key>
+	<string>RX3.icns</string>
+	<key>CFBundleIdentifier</key>
+	<string>local.rbp.rx3-prototype</string>
+	<key>CFBundleName</key>
+	<string>RX3 Prototype</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.2</string>
+	<key>CFBundleVersion</key>
+	<string>3</string>
+	<key>LSArchitecturePriority</key>
+	<array>
+		<string>arm64</string>
+	</array>
+	<key>LSMinimumSystemVersion</key>
+	<string>26.0</string>
+	<key>NSHighResolutionCapable</key>
+	<true/>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>QEMU's CoreAudio backend may open audio devices.</string>
+</dict>
+</plist>
