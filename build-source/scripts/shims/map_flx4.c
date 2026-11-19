@@ -1243,6 +1243,17 @@ static void flx4_startup(void)
 static void flx4_tick(void)
 {
      flx4_jog_idle();
+     /* CFX_FILTER_ONLY: rbp's setType only takes while the effect is idle (SoundColorFxManager
+      * @0xbc708 stores it only in state 0 or 5), so a change made as the knob moves can be
+      * dropped and leave Dub Echo. Keep asking until it holds, about 4 times a second. */
+     static unsigned cfx_ticks;
+     if (env_on("CFX_FILTER_ONLY", 0) && ++cfx_ticks % 25 == 0) {
+          for (int i = 0; i < 2; i++) {
+               int type = me_get_colorfx_type(i);
+               if (type >= 0 && type != COLORFX_FILTER)
+                    me_set_colorfx_type(i, COLORFX_FILTER);
+          }
+     }
 }
 
 static void flx4_event(const struct snd_seq_event *ev)

@@ -13,6 +13,7 @@
  */
 #define _GNU_SOURCE
 #include "pointsrc.h"
+#include "rbp_transport.h"
 #include "point_xform.h"
 #include "tscfake.h"
 #include "touch_zone.h"
@@ -234,7 +235,7 @@ static int  menu_mouse = 0;
  * survives the promotion -- it is the instrument, and the next unnamed key will
  * want it again. */
 static const int menu_key[MZ_COLS] = {
-    K_SOURCE, K_BROWSE, K_TAGLIST, K_PLAYLIST, K_SEARCH, K_MENU, K_USBSTOP
+    K_SOURCE, K_BROWSE, K_TAGLIST, K_PLAYLIST, K_SEARCH, K_MENU, K_USBSTOP, 0 /* REC, see menu_fire() */
 };
 
 /* Which of the keys above rbp only finishes on when it sees a SECOND edge. One
@@ -710,6 +711,25 @@ static unsigned long long shim_now_ms(void);
  * only thing that separates them -- it is what the PLAYLIST/SEARCH measurement
  * read, and what a re-check reads with the same two buttons put back on 0 through
  * POINT_MENU_KEY_EXTRA. */
+/* One click can arrive as a burst of press and release reports, and each start makes a
+ * folder, so a change within a second of the last one is the same click. */
+#define REC_TOGGLE_GAP_MS 1000
+
+static void rec_toggle(void)
+{
+    static unsigned long long last_ms;
+    unsigned long long now = shim_now_ms();
+    int on;
+
+    if (last_ms && now - last_ms < REC_TOGGLE_GAP_MS)
+        return;
+    last_ms = now;
+    on = !rbp_stems_get();
+    rbp_stems_set(on);
+    menu_set_recording(on);
+    pointsrc_log("pointsrc: set recorder %s", on ? "started" : "stopped");
+}
+
 static void menu_fire(int button, int held_ms)
 {
     const char *label = menu_label(button);
@@ -722,6 +742,11 @@ static void menu_fire(int button, int held_ms)
      * being added to the hit test before it is added to the label table. */
     if (label == NULL)
         return;
+    /* REC is ours and not rbp's: it starts and stops the set recorder (rbp_stems.c). */
+    if (button == MZ_REC_BUTTON) {
+        rec_toggle();
+        return;
+    }
     code = menu_key_eff[button - 1];
     if (code == 0) {
         pointsrc_log("pointsrc: menu '%s' tapped (button %d): no keycode yet,"
@@ -1207,6 +1232,31 @@ static int rbp_perf_screen(void)
     if (!am_rbp)
         return 0;
     return rbp_i32(UIBROWSE_GLOBAL + UIBROWSE_OFF_MODE) == BROWSE_MODE_PLAY;
+}
+
+/* The firmware's own recording dot and timer, left of INFO on the deck screen (read off the
+ * screen: INFO starts at x 1183, and the timer ends just before it). A press there is ours
+ * and rbp never sees it: its handler is the firmware recorder, which writes to USB. */
+#define REC_DOT_IN(x, y) ((x) >= 1070 && (x) <= 1172 && (y) >= 8 && (y) <= 38)
+
+static void rec_toggle(void);
+
+static int rec_dot_tap(int down, int x, int y)
+{
+    static int was_down, held;
+    int press = down && !was_down;
+
+    was_down = down;
+    if (press && REC_DOT_IN(x, y) && rbp_perf_screen())
+        held = 1;
+    if (!held)
+        return 0;
+    if (!down) {
+        held = 0;
+        if (REC_DOT_IN(x, y))
+            rec_toggle();
+    }
+    return 1;
 }
 
 /* ------------------------------------------------ the HOT CUE pad row (hc_zone.h)
@@ -2078,6 +2128,8 @@ static void pointer_report(int down, int x, int y, int allow_menu, int held_ms)
             menu_fire(button, held_ms);
         return;
     }
+    if (rec_dot_tap(down, x, y))
+        return;
     quantize_tap(down, x, y);
     tscfake_emit(down, x, y);
     /* ...and this is the only line that publishes a finger of rbp's own. A TAKEN report

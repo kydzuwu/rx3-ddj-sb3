@@ -7,10 +7,14 @@ clang test_sb3_map.c -o test_sb3_map && ./test_sb3_map || { echo "MAP TEST FAILE
 echo "Building midi-host..."
 clang -O2 midi_host.c -framework CoreMIDI -framework CoreFoundation -o midi-host || { echo "BUILD FAILED"; read; exit 1; }
 cp midi-host "$APP/Contents/Helpers/midi-host"
+clang -O2 stem_recorder.c -o stem-recorder || { echo "RECORDER BUILD FAILED"; read; exit 1; }
+cp stem-recorder "$APP/Contents/Helpers/stem-recorder"
+cp set_to_ableton.py "$APP/Contents/Resources/set_to_ableton.py"
 clang -Wno-deprecated-declarations -dynamiclib coreaudio_adapter.c -framework CoreAudio -framework CoreFoundation -o coreaudio-adapter.dylib || { echo "AUDIO BUILD FAILED"; read; exit 1; }
 cp coreaudio-adapter.dylib "$APP/Contents/Frameworks/coreaudio-adapter.dylib"
 for lib in "$APP"/Contents/Frameworks/*; do codesign --force --sign - "$lib" 2>/dev/null; done
 codesign --force --sign - "$APP/Contents/Helpers/midi-host"
+codesign --force --sign - "$APP/Contents/Helpers/stem-recorder"
 codesign --force --sign - --entitlements hvf-entitlements.plist "$APP/Contents/Helpers/qemu-system-aarch64"
 codesign --force --sign - "$APP"
 codesign --verify --strict --deep "$APP" && echo "Signature OK"

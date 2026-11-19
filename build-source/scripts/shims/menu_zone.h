@@ -116,7 +116,8 @@
  * arithmetic below is six-specific; at 1280 logical px a column is 182 px and the
  * widest label, "USB STOP", is 76 px at the shipped atlas (menu_font.h), so the
  * seventh costs every label 42 px of a 182 px column and none of them notices. */
-#define MZ_COLS        7     /* SOURCE BROWSE TAG LIST PLAYLIST SEARCH MENU USB STOP */
+#define MZ_COLS        8     /* SOURCE BROWSE TAG LIST PLAYLIST SEARCH MENU USB STOP REC */
+#define MZ_REC_BUTTON  8     /* not a key of rbp's: starts and stops the set recorder */
 
 /* THE EIGHTH CELL IS GONE, AND WHY IT WENT RATHER THAN CHANGED ITS MARK.
  *
@@ -250,6 +251,8 @@ int menu_button_x1(int i);
 /* Label for button 1..MZ_COLS, or NULL. The painter centres these; the width
  * comes from menu_text_width(). */
 const char *menu_label(int button);
+/* The REC column reads STOP REC while recording. */
+void menu_set_recording(int on);
 
 /* Which cell a logical point is over: 1..MZ_COLS for a labelled button, or 0 for
  * none. A point in the panel but in the border, or in the strip above the buttons,

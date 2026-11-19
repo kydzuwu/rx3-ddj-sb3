@@ -89,4 +89,8 @@ void rbp_transport_clear(void);
 void rbp_transport_want(int on);
 int  rbp_transport_wanted(void);
 
+/* The REC button: pressed in pointsrc.c (fbshim), read by rbp_stems.c (knobshim). */
+int rbp_stems_get(void);
+void rbp_stems_set(int on);
+
 #endif /* RBPI4B_RBP_TRANSPORT_H */

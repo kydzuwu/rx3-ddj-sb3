@@ -47,3 +47,15 @@ int rbp_transport_wanted(void)
 {
     return wanted;
 }
+
+static volatile int stems_on;
+
+int rbp_stems_get(void)
+{
+     return stems_on;
+}
+
+void rbp_stems_set(int on)
+{
+     stems_on = on;
+}

@@ -47,6 +47,7 @@
 #include "syscalls.h"
 
 #include "shimutil.h"
+void stems_start(void);            /* rbp_stems.c */
 #include "rbp_abi.h"
 #include "rbp_bridge.h"
 #include "midi_io.h"
@@ -378,6 +379,7 @@ void *vu_thread(void *arg)
       * nothing to do with whether rbp's meters should be hooked, and every send
       * below is retried until one lands. */
      install_meter_hook();
+     stems_start();                 /* set recorder: no-op unless its port exists */
      /* Ask for the physical control positions only once rbp can accept them:
       * if the reply lands before rbp's mixer exists, the values are dropped and
       * rbp initialises the faders/EQs to their defaults (the fader then reads

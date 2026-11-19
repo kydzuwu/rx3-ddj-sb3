@@ -201,7 +201,7 @@ rbp_key.o: rbp_key.c rbp_key.h rbp_abi.h syscalls.h
 # list; it is hidden too, and says why in its own rule above.)
 CTRL_OBJS  := ctrlshim.o ctrl_map.o map_flx4.o map_jp21.o map_kbd.o evdev_io.o \
               mididump.o rbp_bridge.o rbp_led.o led_table.o plinn_scan.o \
-              rbp_vu.o midi_io.o controllers.o shimutil.o usb_label.o
+              rbp_vu.o rbp_stems.o midi_io.o controllers.o shimutil.o usb_label.o
 CTRL_HDRS  := rbp_abi.h rbp_bridge.h rbp_key.h rbp_led.h led_table.h rbp_vu.h \
               midi_io.h midi_raw.h shimutil.h ctrl_map.h mididump.h evdev_io.h syscalls.h \
               shmstate.h plinn_scan.h controllers.h usb_label.h

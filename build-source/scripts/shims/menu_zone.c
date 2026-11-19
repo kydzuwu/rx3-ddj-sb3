@@ -17,8 +17,10 @@
  * the only one that is not a browse key; it is uppercase like the rest because the
  * font has no lowercase (menu_font.h's set). */
 static const char *const labels[MZ_COLS] = {
-    "SOURCE", "BROWSE", "TAG LIST", "PLAYLIST", "SEARCH", "MENU", "USB STOP"
+    "SOURCE", "BROWSE", "TAG LIST", "PLAYLIST", "SEARCH", "MENU", "USB STOP", "REC"
 };
+
+static int recording;
 
 /* ---------------------------------------------------------------------------
  * State. All of it is cleared by menu_reset(); the whole module is fed from
@@ -77,7 +79,14 @@ const char *menu_label(int button)
 {
     if (button < 1 || button > MZ_COLS)
         return 0;
+    if (button == MZ_REC_BUTTON && recording)
+        return "STOP REC";
     return labels[button - 1];
+}
+
+void menu_set_recording(int on)
+{
+    recording = on;
 }
 
 int menu_button_at(int x, int y)

@@ -405,12 +405,14 @@
  *   getMixerChHeadphoneCue(input)  @0x000575e8
  */
 #define ME_SINGLETON   0x011493c0UL
-/* RX3 v1.20 MixerEngine Sound Color FX methods (stock ELF symbols). Type 0
- * is Off and type 5 is Filter, confirmed in MixerChInnards::onEv_ColorFxSW. */
+/* RX3 v1.20 MixerEngine Sound Color FX methods (stock ELF symbols). Types, from
+ * SoundColorFxManager::operate's table @0xbc0c0 and its constructor @0xbb970:
+ * 0 Off, 1 Filter, 2 Noise, 3 Sweep, 4 Dub Echo, 5 Space, 6 Crush. (This said 5 was
+ * Filter, which forced Space: onEv_ColorFxSW's event 5 is Filter, not its type.) */
 #define ME_GET_COLORFX_TYPE 0x00057408UL
 #define ME_SET_COLORFX_TYPE 0x000573c4UL
 #define COLORFX_OFF 0
-#define COLORFX_FILTER 5
+#define COLORFX_FILTER 1
 #define ME_SET_CUE     0x000575a0UL
 #define ME_GET_CUE     0x000575e8UL
 

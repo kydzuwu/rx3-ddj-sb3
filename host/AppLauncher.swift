@@ -141,9 +141,29 @@ final class AppLauncher: NSObject, NSApplicationDelegate {
         }
         self.bridge = bridge
 
+        // Set recorder: a virtio port for the guest's rbp_stems.c and a helper that writes the
+        // WAV files. Nothing is written until REC is pressed on the player's menu band.
+        // It ends when QEMU closes the socket.
+        let stemSocket: URL? = support.appendingPathComponent("stems.sock")
+        if let stemSocket {
+            let recorderLog = logs.appendingPathComponent("stem-recorder.log")
+            FileManager.default.createFile(atPath: recorderLog.path, contents: nil)
+            let recorder = Process()
+            recorder.executableURL = helpers.appendingPathComponent("stem-recorder")
+            recorder.arguments = [stemSocket.path]
+            recorder.standardOutput = FileHandle(forWritingAtPath: recorderLog.path)
+            recorder.standardError = recorder.standardOutput
+            try? recorder.run()
+        }
+
         let process = Process()
         process.executableURL = helpers.appendingPathComponent("qemu-system-aarch64")
-        process.arguments = arguments(usb: usb, midiSocket: midiSocket)
+        var qemuArguments = arguments(usb: usb, midiSocket: midiSocket)
+        if let stemSocket {
+            qemuArguments += ["-chardev", "socket,id=stems,path=\(stemSocket.path),server=on,wait=off",
+                              "-device", "virtserialport,bus=control.0,nr=2,chardev=stems,name=stems"]
+        }
+        process.arguments = qemuArguments
         var environment = ProcessInfo.processInfo.environment
         environment["DYLD_INSERT_LIBRARIES"] = bundle.bundleURL
             .appendingPathComponent("Contents/Frameworks/coreaudio-adapter.dylib").path
